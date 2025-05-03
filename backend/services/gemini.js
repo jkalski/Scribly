@@ -1,4 +1,4 @@
-// gemini-debug.js - Enhanced debugging version
+// services/gemini.js - Updated model name and version
 
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import dotenv from "dotenv";
@@ -13,19 +13,13 @@ if (result.error) {
 console.log('=== DEBUG INFO ===');
 console.log('Node Environment:', process.env.NODE_ENV);
 console.log('Working Directory:', process.cwd());
-console.log('Dotenv Config:', result);
-console.log('All Environment Variables:', Object.keys(process.env).filter(key => key.includes('API') || key.includes('KEY')));
+console.log('API Key exists:', !!process.env.GEMINI_API_KEY);
+console.log('API Key length:', process.env.GEMINI_API_KEY ? process.env.GEMINI_API_KEY.length : 0);
 
-// Check API key
+// Get API key from environment
 const apiKey = process.env.GEMINI_API_KEY;
-console.log('\n=== API KEY STATUS ===');
-console.log('GEMINI_API_KEY exists:', !!apiKey);
-console.log('GEMINI_API_KEY type:', typeof apiKey);
-console.log('GEMINI_API_KEY length:', apiKey ? apiKey.length : 0);
-console.log('GEMINI_API_KEY first 5 chars:', apiKey ? apiKey.substring(0, 5) : 'N/A');
-console.log('Has special characters:', apiKey ? /[^a-zA-Z0-9]/.test(apiKey) : false);
 
-// Try to initialize Gemini
+// Initialize the Gemini API client
 let genAI = null;
 try {
   genAI = new GoogleGenerativeAI(apiKey);
@@ -44,7 +38,8 @@ export const analyzeResume = async (resumeText) => {
     }
 
     console.log('\n=== STARTING ANALYSIS ===');
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    // Use a valid model name (gemini-1.5-pro is the current model as of May 2025)
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
     console.log('Model retrieved successfully');
     
     const prompt = `You are an expert resume reviewer. Analyze this resume and provide constructive feedback:
@@ -91,7 +86,8 @@ Format your response in a clear, structured manner.`;
 export const testGeminiConnection = async () => {
   try {
     console.log('\n=== TESTING GEMINI CONNECTION ===');
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    // Use the updated model name here too
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
     const result = await model.generateContent("Hello");
     const response = await result.response;
     console.log('Connection test successful. Response:', response.text());
