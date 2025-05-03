@@ -1,5 +1,7 @@
 import React, { useState } from 'react'
 import './App.css'
+import './PDFViewer.css'
+import PDFViewer from './PDFViewer'
 
 function App() {
   const [file, setFile] = useState(null)
@@ -7,6 +9,7 @@ function App() {
   const [extractedText, setExtractedText] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
+  const [pdfFile, setPdfFile] = useState(null)
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0]
@@ -19,12 +22,21 @@ function App() {
       if (!validTypes.includes(selectedFile.type)) {
         setError('Please upload a PDF or DOCX file')
         setFile(null)
+        setPdfFile(null)
         return
       }
+
       setFile(selectedFile)
       setError(null)
       setAnalysis(null)
       setExtractedText(null)
+      
+      // Create a URL for the PDF viewer (only for PDF files)
+      if (selectedFile.type === 'application/pdf') {
+        setPdfFile(selectedFile)
+      } else {
+        setPdfFile(null)
+      }
     }
   }
 
@@ -61,43 +73,58 @@ function App() {
 
   return (
     <div className="App">
-      <h1>Scribly - AI Resume Feedback</h1>
+      <header>
+        <h1>Scribly - AI Resume Feedback</h1>
+      </header>
       
       <div className="upload-section">
         <input 
           type="file" 
           accept=".pdf,.docx" 
           onChange={handleFileChange}
+          className="file-input"
         />
-        {file && <p>Selected file: {file.name}</p>}
+        {file && <p className="selected-file">Selected file: {file.name}</p>}
         
         <button 
           onClick={handleUpload} 
           disabled={!file || loading}
+          className="analyze-button"
         >
           {loading ? 'Analyzing...' : 'Analyze Resume'}
         </button>
       </div>
 
       {error && (
-        <div className="error" style={{color: 'red'}}>
+        <div className="error">
           Error: {error}
         </div>
       )}
 
-      {extractedText && (
-        <div className="extracted-text">
-          <h3>Extracted Text Preview:</h3>
-          <pre style={{whiteSpace: 'pre-wrap', background: '#f0f0f0', padding: '10px'}}>
-            {extractedText}
-          </pre>
-        </div>
-      )}
-
-      {analysis && (
-        <div className="analysis-results">
-          <h2>Analysis Results:</h2>
-          <pre style={{whiteSpace: 'pre-wrap'}}>{analysis}</pre>
+      {file && analysis && (
+        <div className="results-container">
+          <div className="pdf-section">
+            {pdfFile ? (
+              <PDFViewer file={pdfFile} />
+            ) : (
+              <div className="docx-preview">
+                <h3>DOCX Preview</h3>
+                <p>DOCX preview is not available. View the extracted text below.</p>
+              </div>
+            )}
+          </div>
+          
+          <div className="analysis-section">
+            <h2>Analysis Results</h2>
+            <div className="analysis-content">
+              <pre>{analysis}</pre>
+            </div>
+            
+            <div className="extracted-text">
+              <h3>Extracted Text Preview</h3>
+              <pre>{extractedText}</pre>
+            </div>
+          </div>
         </div>
       )}
     </div>
