@@ -6,7 +6,7 @@ const AnnotationContainer = ({ annotations, pageNumber }) => {
   const pageAnnotations = annotations.filter(ann => ann.page === pageNumber);
   
   return (
-    <div className="annotation-container">
+    <div className="annotation-container" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none' }}>
       {pageAnnotations.map(annotation => (
         <Annotation 
           key={annotation.id}

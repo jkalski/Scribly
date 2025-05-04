@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import './App.css'
 import './PDFViewer.css'
 import PDFViewer from './PDFViewer'
+import axios from 'axios'
 
 function App() {
   const [file, setFile] = useState(null)
@@ -9,7 +10,6 @@ function App() {
   const [extractedText, setExtractedText] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
-  const [pdfFile, setPdfFile] = useState(null)
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0]
@@ -22,7 +22,6 @@ function App() {
       if (!validTypes.includes(selectedFile.type)) {
         setError('Please upload a PDF or DOCX file')
         setFile(null)
-        setPdfFile(null)
         return
       }
 
@@ -30,13 +29,6 @@ function App() {
       setError(null)
       setAnalysis(null)
       setExtractedText(null)
-      
-      // Create a URL for the PDF viewer (only for PDF files)
-      if (selectedFile.type === 'application/pdf') {
-        setPdfFile(selectedFile)
-      } else {
-        setPdfFile(null)
-      }
     }
   }
 
@@ -50,26 +42,32 @@ function App() {
       const formData = new FormData()
       formData.append('file', file)
       
-      const response = await fetch('http://localhost:5000/api/analyze-resume', {
-        method: 'POST',
-        body: formData
+      // Using axios for better error handling and progress monitoring
+      const response = await axios.post('http://localhost:5000/api/analyze-resume', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
       })
       
-      const data = await response.json()
-      
-      if (data.success) {
-        setAnalysis(data.analysis)
-        setExtractedText(data.extractedText)
+      if (response.data.success) {
+        setAnalysis(response.data.analysis)
+        setExtractedText(response.data.extractedText)
       } else {
-        setError(data.error)
+        setError(response.data.error || 'An error occurred during analysis')
       }
     } catch (error) {
       console.error('Error:', error)
-      setError('Failed to analyze resume')
+      setError(
+        error.response?.data?.error || 
+        'Failed to analyze resume. Please check if the server is running.'
+      )
     } finally {
       setLoading(false)
     }
   }
+
+  // Determine if we can show the PDF preview
+  const canShowPdf = file && file.type === 'application/pdf'
 
   return (
     <div className="App">
@@ -104,8 +102,8 @@ function App() {
       {file && analysis && (
         <div className="results-container">
           <div className="pdf-section">
-            {pdfFile ? (
-              <PDFViewer file={pdfFile} />
+            {canShowPdf ? (
+              <PDFViewer file={file} />
             ) : (
               <div className="docx-preview">
                 <h3>DOCX Preview</h3>

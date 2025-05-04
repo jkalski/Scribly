@@ -1,45 +1,38 @@
-import React, { useState, useRef } from 'react';
-import { Document, Page, pdfjs } from 'react-pdf';
+import React, { useState } from 'react';
+import { Document, Page } from 'react-pdf';
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
 import 'react-pdf/dist/esm/Page/TextLayer.css';
-import AnnotationContainer from './AnnotationContainer';
+// Import pdfjs explicitly to set worker
+import * as pdfjs from 'pdfjs-dist';
 
-// Set up the worker source for PDF.js
-pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
+// Set a specific version that exists on the CDN
+// Using a known version that's available on CDN - don't use pdfjs.version
+pdfjs.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
 
-// Sample annotations - this would come from AI analysis in the real implementation
-const sampleAnnotations = [
-  {
-    id: 1,
-    page: 1,
-    position: { x: 10, y: 20, width: 30, height: 5 },
-    comment: "Consider using the STAR method (Situation, Task, Action, Result) for this bullet point to make it more impactful.",
-    color: "#FFEB3B" // Yellow
-  },
-  {
-    id: 2,
-    page: 1,
-    position: { x: 15, y: 40, width: 40, height: 5 },
-    comment: "Add quantifiable achievements here. How much did you improve? What metrics can you include?",
-    color: "#4CAF50" // Green
-  },
-  {
-    id: 3,
-    page: 1,
-    position: { x: 20, y: 60, width: 35, height: 5 },
-    comment: "This skill section could be better organized into categories (Programming Languages, Tools, Frameworks, etc.)",
-    color: "#2196F3" // Blue
-  }
-];
+// Log version for debugging
+console.log('PDF.js version in code:', pdfjs.version);
+console.log('Worker source set to:', pdfjs.GlobalWorkerOptions.workerSrc);
 
-const PDFViewer = ({ file, annotations = sampleAnnotations }) => {
+const PDFViewer = ({ file }) => {
   const [numPages, setNumPages] = useState(null);
   const [pageNumber, setPageNumber] = useState(1);
   const [scale, setScale] = useState(1.2);
-  const containerRef = useRef(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Create object URL from file
+  const fileUrl = file instanceof File ? URL.createObjectURL(file) : file;
 
   function onDocumentLoadSuccess({ numPages }) {
+    console.log('PDF loaded successfully with', numPages, 'pages');
     setNumPages(numPages);
+    setLoading(false);
+  }
+
+  function onDocumentLoadError(error) {
+    console.error("Error loading PDF:", error);
+    setError("Failed to load PDF. Please check if the file is valid.");
+    setLoading(false);
   }
 
   function changePage(offset) {
@@ -67,46 +60,56 @@ const PDFViewer = ({ file, annotations = sampleAnnotations }) => {
       <div className="pdf-controls">
         <button 
           onClick={previousPage} 
-          disabled={pageNumber <= 1}
+          disabled={pageNumber <= 1 || loading}
           className="pdf-control-btn"
         >
           Previous
         </button>
         <span className="page-info">
-          Page {pageNumber} of {numPages}
+          {loading ? 'Loading...' : `Page ${pageNumber} of ${numPages}`}
         </span>
         <button 
           onClick={nextPage} 
-          disabled={pageNumber >= numPages}
+          disabled={!numPages || pageNumber >= numPages || loading}
           className="pdf-control-btn"
         >
           Next
         </button>
-        <button onClick={zoomOut} className="pdf-control-btn">
+        <button onClick={zoomOut} disabled={loading} className="pdf-control-btn">
           Zoom -
         </button>
-        <button onClick={zoomIn} className="pdf-control-btn">
+        <button onClick={zoomIn} disabled={loading} className="pdf-control-btn">
           Zoom +
         </button>
       </div>
 
-      <div className="pdf-container" ref={containerRef}>
-        <Document
-          file={file}
-          onLoadSuccess={onDocumentLoadSuccess}
-          className="pdf-document"
-        >
-          <Page 
-            pageNumber={pageNumber} 
-            scale={scale}
-            renderTextLayer={true}
-            renderAnnotationLayer={true}
-          />
-          <AnnotationContainer 
-            annotations={annotations} 
-            pageNumber={pageNumber} 
-          />
-        </Document>
+      <div className="pdf-container">
+        {error ? (
+          <div className="pdf-error">
+            {error}
+          </div>
+        ) : (
+          <Document
+            file={fileUrl}
+            onLoadSuccess={onDocumentLoadSuccess}
+            onLoadError={onDocumentLoadError}
+            loading={<div className="pdf-loading">Loading PDF...</div>}
+            options={{
+              cMapUrl: 'https://unpkg.com/pdfjs-dist@3.4.120/cmaps/',
+              cMapPacked: true,
+            }}
+          >
+            {loading ? null : (
+              <Page 
+                key={`page_${pageNumber}`}
+                pageNumber={pageNumber} 
+                scale={scale}
+                renderTextLayer={true}
+                renderAnnotationLayer={true}
+              />
+            )}
+          </Document>
+        )}
       </div>
     </div>
   );
