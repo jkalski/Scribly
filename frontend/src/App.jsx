@@ -3,6 +3,7 @@ import './App.css'
 import './PDFViewer.css'
 import PDFViewer from './PDFViewer'
 import axios from 'axios'
+import { Upload, FileText, AlertCircle, CheckCircle } from 'lucide-react'
 
 function App() {
   const [file, setFile] = useState(null)
@@ -10,6 +11,7 @@ function App() {
   const [extractedText, setExtractedText] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
+  const [uploadSuccess, setUploadSuccess] = useState(false)
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0]
@@ -22,6 +24,7 @@ function App() {
       if (!validTypes.includes(selectedFile.type)) {
         setError('Please upload a PDF or DOCX file')
         setFile(null)
+        setUploadSuccess(false)
         return
       }
 
@@ -29,6 +32,12 @@ function App() {
       setError(null)
       setAnalysis(null)
       setExtractedText(null)
+      setUploadSuccess(true)
+      
+      // Auto-hide success message after 3 seconds
+      setTimeout(() => {
+        setUploadSuccess(false)
+      }, 3000)
     }
   }
 
@@ -73,16 +82,31 @@ function App() {
     <div className="App">
       <header>
         <h1>Scribly - AI Resume Feedback</h1>
+        <p className="subtitle">Upload your resume for AI-powered feedback and improvement suggestions</p>
       </header>
       
       <div className="upload-section">
-        <input 
-          type="file" 
-          accept=".pdf,.docx" 
-          onChange={handleFileChange}
-          className="file-input"
-        />
-        {file && <p className="selected-file">Selected file: {file.name}</p>}
+        <div className="upload-container">
+          <label htmlFor="file-upload" className="file-upload-label">
+            <Upload size={24} />
+            <span>Choose a file</span>
+            <input 
+              id="file-upload"
+              type="file" 
+              accept=".pdf,.docx" 
+              onChange={handleFileChange}
+              className="file-input"
+            />
+          </label>
+          {file && <p className="selected-file"><FileText size={16} /> {file.name}</p>}
+          
+          {uploadSuccess && (
+            <div className="success-message">
+              <CheckCircle size={16} />
+              File uploaded successfully
+            </div>
+          )}
+        </div>
         
         <button 
           onClick={handleUpload} 
@@ -95,13 +119,15 @@ function App() {
 
       {error && (
         <div className="error">
-          Error: {error}
+          <AlertCircle size={18} />
+          {error}
         </div>
       )}
 
       {file && analysis && (
         <div className="results-container">
           <div className="pdf-section">
+            <h2>Document Preview</h2>
             {canShowPdf ? (
               <PDFViewer file={file} />
             ) : (

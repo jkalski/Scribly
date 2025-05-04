@@ -1,17 +1,9 @@
-import React, { useState } from 'react';
-import { Document, Page } from 'react-pdf';
+import React, { useState, useMemo } from 'react';
+import { Document, Page, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
 import 'react-pdf/dist/esm/Page/TextLayer.css';
-// Import pdfjs explicitly to set worker
-import * as pdfjs from 'pdfjs-dist';
 
-// Set a specific version that exists on the CDN
-// Using a known version that's available on CDN - don't use pdfjs.version
-pdfjs.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
-
-// Log version for debugging
-console.log('PDF.js version in code:', pdfjs.version);
-console.log('Worker source set to:', pdfjs.GlobalWorkerOptions.workerSrc);
+pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
 
 const PDFViewer = ({ file }) => {
   const [numPages, setNumPages] = useState(null);
@@ -19,90 +11,80 @@ const PDFViewer = ({ file }) => {
   const [scale, setScale] = useState(1.2);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [insight, setInsight] = useState('');
+  const [analyzing, setAnalyzing] = useState(false);
 
-  // Create object URL from file
-  const fileUrl = file instanceof File ? URL.createObjectURL(file) : file;
+  const options = useMemo(() => ({
+    cMapUrl: 'https://unpkg.com/pdfjs-dist@4.8.69/cmaps/',
+    cMapPacked: true,
+  }), []);
 
-  function onDocumentLoadSuccess({ numPages }) {
-    console.log('PDF loaded successfully with', numPages, 'pages');
+  const onDocumentLoadSuccess = ({ numPages }) => {
     setNumPages(numPages);
     setLoading(false);
-  }
+  };
 
-  function onDocumentLoadError(error) {
-    console.error("Error loading PDF:", error);
-    setError("Failed to load PDF. Please check if the file is valid.");
+  const onDocumentLoadError = (err) => {
+    console.error('Error loading PDF:', err);
+    setError('Failed to load PDF. Please check if the file is valid.');
     setLoading(false);
-  }
+  };
 
-  function changePage(offset) {
-    setPageNumber(prevPageNumber => prevPageNumber + offset);
-  }
+  const changePage = (offset) => setPageNumber((prev) => prev + offset);
+  const zoomIn = () => setScale((prev) => Math.min(prev + 0.2, 2.5));
+  const zoomOut = () => setScale((prev) => Math.max(prev - 0.2, 0.8));
 
-  function previousPage() {
-    changePage(-1);
-  }
+  const handleAnalyzeResume = async () => {
+    if (!(file instanceof File)) return;
+    const formData = new FormData();
+    formData.append('resume', file);
 
-  function nextPage() {
-    changePage(1);
-  }
-
-  function zoomIn() {
-    setScale(prevScale => Math.min(prevScale + 0.2, 2.5));
-  }
-
-  function zoomOut() {
-    setScale(prevScale => Math.max(prevScale - 0.2, 0.8));
-  }
+    try {
+      setAnalyzing(true);
+      const res = await fetch('http://localhost:5000/api/analyze-resume', {
+        method: 'POST',
+        body: formData,
+      });
+      const data = await res.json();
+      setInsight(data.insight || 'No insight received.');
+    } catch (err) {
+      console.error('Error analyzing resume:', err);
+      setInsight('Error analyzing resume.');
+    } finally {
+      setAnalyzing(false);
+    }
+  };
 
   return (
     <div className="pdf-viewer">
       <div className="pdf-controls">
-        <button 
-          onClick={previousPage} 
-          disabled={pageNumber <= 1 || loading}
-          className="pdf-control-btn"
-        >
+        <button onClick={() => changePage(-1)} disabled={pageNumber <= 1 || loading}>
           Previous
         </button>
-        <span className="page-info">
+        <span>
           {loading ? 'Loading...' : `Page ${pageNumber} of ${numPages}`}
         </span>
-        <button 
-          onClick={nextPage} 
-          disabled={!numPages || pageNumber >= numPages || loading}
-          className="pdf-control-btn"
-        >
+        <button onClick={() => changePage(1)} disabled={pageNumber >= numPages || loading}>
           Next
         </button>
-        <button onClick={zoomOut} disabled={loading} className="pdf-control-btn">
-          Zoom -
-        </button>
-        <button onClick={zoomIn} disabled={loading} className="pdf-control-btn">
-          Zoom +
-        </button>
+        <button onClick={zoomOut} disabled={loading}>Zoom -</button>
+        <button onClick={zoomIn} disabled={loading}>Zoom +</button>
       </div>
 
       <div className="pdf-container">
         {error ? (
-          <div className="pdf-error">
-            {error}
-          </div>
+          <div className="pdf-error">{error}</div>
         ) : (
           <Document
-            file={fileUrl}
+            file={file} // ✅ Pass the raw file
             onLoadSuccess={onDocumentLoadSuccess}
             onLoadError={onDocumentLoadError}
-            loading={<div className="pdf-loading">Loading PDF...</div>}
-            options={{
-              cMapUrl: 'https://unpkg.com/pdfjs-dist@3.4.120/cmaps/',
-              cMapPacked: true,
-            }}
+            loading={<div>Loading PDF...</div>}
+            options={options} // ✅ Memoized
           >
-            {loading ? null : (
-              <Page 
-                key={`page_${pageNumber}`}
-                pageNumber={pageNumber} 
+            {!loading && (
+              <Page
+                pageNumber={pageNumber}
                 scale={scale}
                 renderTextLayer={true}
                 renderAnnotationLayer={true}
@@ -111,6 +93,21 @@ const PDFViewer = ({ file }) => {
           </Document>
         )}
       </div>
+
+      {file instanceof File && (
+        <div style={{ marginTop: '1rem' }}>
+          <button onClick={handleAnalyzeResume} disabled={analyzing}>
+            {analyzing ? 'Analyzing...' : 'Get Resume Insight'}
+          </button>
+
+          {insight && (
+            <div style={{ marginTop: '0.5rem' }}>
+              <h3>AI Insight</h3>
+              <p>{insight}</p>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };
