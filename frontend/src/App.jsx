@@ -365,13 +365,6 @@ function App() {
                   <div className="bg-white p-4 rounded-lg shadow-sm mb-4 text-left">
                     <div className="whitespace-pre-line">{analysis}</div>
                   </div>
-                  
-                  <div className="mt-6 pt-4 border-t">
-                    <h4 className="font-medium mb-2">Extracted Text Preview</h4>
-                    <div className="bg-gray-50 p-3 rounded text-sm text-gray-700 max-h-64 overflow-y-auto">
-                      <pre className="whitespace-pre-wrap">{extractedText}</pre>
-                    </div>
-                  </div>
                 </div>
               )}
             </div>
