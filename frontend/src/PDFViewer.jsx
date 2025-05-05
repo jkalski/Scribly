@@ -3,6 +3,7 @@ import { Document, Page, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
 import 'react-pdf/dist/esm/Page/TextLayer.css';
 
+// Set worker source for PDF.js - using the local file
 pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
 
 const PDFViewer = ({ file }) => {
@@ -11,9 +12,8 @@ const PDFViewer = ({ file }) => {
   const [scale, setScale] = useState(1.2);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [insight, setInsight] = useState('');
-  const [analyzing, setAnalyzing] = useState(false);
 
+  // Options for PDF.js
   const options = useMemo(() => ({
     cMapUrl: 'https://unpkg.com/pdfjs-dist@4.8.69/cmaps/',
     cMapPacked: true,
@@ -22,6 +22,7 @@ const PDFViewer = ({ file }) => {
   const onDocumentLoadSuccess = ({ numPages }) => {
     setNumPages(numPages);
     setLoading(false);
+    setError(null);
   };
 
   const onDocumentLoadError = (err) => {
@@ -30,84 +31,86 @@ const PDFViewer = ({ file }) => {
     setLoading(false);
   };
 
-  const changePage = (offset) => setPageNumber((prev) => prev + offset);
-  const zoomIn = () => setScale((prev) => Math.min(prev + 0.2, 2.5));
-  const zoomOut = () => setScale((prev) => Math.max(prev - 0.2, 0.8));
+  // Page navigation
+  const previousPage = () => {
+    setPageNumber(prevPage => Math.max(prevPage - 1, 1));
+  };
 
-  const handleAnalyzeResume = async () => {
-    if (!(file instanceof File)) return;
-    const formData = new FormData();
-    formData.append('resume', file);
+  const nextPage = () => {
+    setPageNumber(prevPage => Math.min(prevPage + 1, numPages || 1));
+  };
 
-    try {
-      setAnalyzing(true);
-      const res = await fetch('http://localhost:5000/api/analyze-resume', {
-        method: 'POST',
-        body: formData,
-      });
-      const data = await res.json();
-      setInsight(data.insight || 'No insight received.');
-    } catch (err) {
-      console.error('Error analyzing resume:', err);
-      setInsight('Error analyzing resume.');
-    } finally {
-      setAnalyzing(false);
-    }
+  // Zoom controls
+  const zoomIn = () => {
+    setScale(prevScale => Math.min(prevScale + 0.2, 2.5));
+  };
+
+  const zoomOut = () => {
+    setScale(prevScale => Math.max(prevScale - 0.2, 0.8));
   };
 
   return (
     <div className="pdf-viewer">
       <div className="pdf-controls">
-        <button onClick={() => changePage(-1)} disabled={pageNumber <= 1 || loading}>
+        <button 
+          onClick={previousPage} 
+          disabled={pageNumber <= 1 || loading}
+          className="pdf-control-btn"
+        >
           Previous
         </button>
-        <span>
+        <span className="page-info">
           {loading ? 'Loading...' : `Page ${pageNumber} of ${numPages}`}
         </span>
-        <button onClick={() => changePage(1)} disabled={pageNumber >= numPages || loading}>
+        <button 
+          onClick={nextPage} 
+          disabled={pageNumber >= numPages || loading}
+          className="pdf-control-btn"
+        >
           Next
         </button>
-        <button onClick={zoomOut} disabled={loading}>Zoom -</button>
-        <button onClick={zoomIn} disabled={loading}>Zoom +</button>
+        <button 
+          onClick={zoomOut} 
+          disabled={loading}
+          className="pdf-control-btn"
+        >
+          Zoom -
+        </button>
+        <button 
+          onClick={zoomIn} 
+          disabled={loading}
+          className="pdf-control-btn"
+        >
+          Zoom +
+        </button>
       </div>
 
       <div className="pdf-container">
         {error ? (
           <div className="pdf-error">{error}</div>
         ) : (
-          <Document
-            file={file} // ✅ Pass the raw file
-            onLoadSuccess={onDocumentLoadSuccess}
-            onLoadError={onDocumentLoadError}
-            loading={<div>Loading PDF...</div>}
-            options={options} // ✅ Memoized
-          >
-            {!loading && (
-              <Page
-                pageNumber={pageNumber}
-                scale={scale}
-                renderTextLayer={true}
-                renderAnnotationLayer={true}
-              />
-            )}
-          </Document>
+          <div style={{ position: 'relative' }}>
+            <Document
+              file={file}
+              onLoadSuccess={onDocumentLoadSuccess}
+              onLoadError={onDocumentLoadError}
+              loading={<div>Loading PDF...</div>}
+              options={options}
+            >
+              {!loading && (
+                <div style={{ position: 'relative' }}>
+                  <Page
+                    pageNumber={pageNumber}
+                    scale={scale}
+                    renderTextLayer={true}
+                    renderAnnotationLayer={true}
+                  />
+                </div>
+              )}
+            </Document>
+          </div>
         )}
       </div>
-
-      {file instanceof File && (
-        <div style={{ marginTop: '1rem' }}>
-          <button onClick={handleAnalyzeResume} disabled={analyzing}>
-            {analyzing ? 'Analyzing...' : 'Get Resume Insight'}
-          </button>
-
-          {insight && (
-            <div style={{ marginTop: '0.5rem' }}>
-              <h3>AI Insight</h3>
-              <p>{insight}</p>
-            </div>
-          )}
-        </div>
-      )}
     </div>
   );
 };
