@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 import multer from "multer";
 import PdfReader from "pdfreader";
 import mammoth from "mammoth";
-import { analyzeResume } from "./services/gemini.js";
+import { analyzeResume } from "./services/groq.js"; // Changed from gemini.js to groq.js
 
 dotenv.config();
 
@@ -97,5 +97,5 @@ app.post("/api/analyze-resume", upload.single("file"), async (req, res) => {
 
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
-  console.log('API Key loaded:', process.env.GEMINI_API_KEY ? 'Yes' : 'No');
+  console.log('API Key loaded:', process.env.GROQ_API_KEY ? 'Yes' : 'No'); // Updated to check GROQ_API_KEY
 });
