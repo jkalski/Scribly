@@ -218,6 +218,16 @@ function App() {
 
   return (
     <div className="App">
+      {/* Modern Full-Width Header */}
+      <div className="main-header">
+        <img src="/ScriblyLogo.png" alt="Scribly Logo" className="header-logo" />
+        <nav className="header-nav">
+          <a href="#" className="header-link">Home</a>
+          <a href="#" className="header-link">About</a>
+          <a href="#" className="header-link">Contact</a>
+        </nav>
+      </div>
+      
       <header>
         <h1>Scribly - AI Resume Feedback</h1>
         <p className="subtitle">Upload your resume for AI-powered feedback and improvement suggestions</p>

@@ -12,6 +12,7 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  padding-top: 100px;
 }
 
 header {
@@ -166,7 +167,7 @@ h3 {
   gap: 2rem;
   width: 100%;
   align-items: stretch;
-  min-height: 800px;
+  min-height: 600px;
 }
 
 .pdf-section,
@@ -175,11 +176,11 @@ h3 {
   flex-direction: column;
   align-items: center;
   box-sizing: border-box;
+  min-width: 0;
+  min-height: 400px;
 }
 
 .pdf-section {
-  min-height: 800px;
-  height: 100%;
   margin-bottom: 2rem;
 }
 
@@ -274,30 +275,95 @@ h3 {
   .results-container {
     grid-template-columns: 1fr;
   }
-  
   .pdf-section, .analysis-section {
     width: 100%;
-  }
-  
-  .pdf-section {
-    margin-bottom: 2rem;
-  }
-  
-  .analysis-section {
-    min-height: 900px; /* Shorter on mobile but still taller than original */
+    min-height: 300px;
   }
 }
 
 @media (max-width: 768px) {
+  .results-container {
+    gap: 1rem;
+  }
+  .analysis-section, .pdf-section {
+    padding: 1rem;
+    min-height: 200px;
+  }
   h1 {
-    font-size: 2rem;
+    font-size: 1.5rem;
   }
-  
-  .upload-section {
-    padding: 1.5rem 1rem;
+}
+
+.main-header {
+  width: 100vw;
+  background: rgba(74, 134, 232, 0.95);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.2rem 2.5rem;
+  box-shadow: 0 4px 16px rgba(74, 134, 232, 0.08);
+  border-radius: 0;
+  margin-bottom: 2rem;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+}
+
+.header-logo {
+  width: 64px;
+  height: 64px;
+  border-radius: 12px;
+  background: #fff;
+  object-fit: contain;
+  margin-right: 2.5rem;
+}
+
+.header-nav {
+  display: flex;
+  gap: 2.5rem;
+}
+
+.header-link {
+  color: #fff;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 1.15rem;
+  letter-spacing: 0.5px;
+  padding: 0.25rem 0.75rem;
+  border-radius: 6px;
+  transition: background 0.2s, color 0.2s;
+}
+
+.header-link:hover,
+.header-link:focus {
+  background: #fff;
+  color: #4a86e8;
+  text-decoration: none;
+}
+
+@media (max-width: 600px) {
+  .main-header {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 1rem;
   }
-  
-  .analyze-button {
-    width: 100%;
+  .header-nav {
+    gap: 1.2rem;
+    margin-top: 0.5rem;
   }
+  .header-logo {
+    width: 48px;
+    height: 48px;
+    margin-right: 0;
+  }
+}
+
+body, #root {
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(135deg, #e0e7ff 0%, #f0f4ff 100%);
+  min-height: 100vh;
 }

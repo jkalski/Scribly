@@ -8,6 +8,7 @@
     margin-bottom: 2rem;
     width: 100%;
     max-width: 800px;
+    min-width: 0;
   }
   
   .pdf-controls {
@@ -55,8 +56,10 @@
     background-color: #e0e0e0;
     padding: 20px;
     border-radius: 4px;
-    min-height: 500px;
+    min-height: 400px;
     position: relative;
+    width: 100%;
+    min-width: 0;
   }
   
   .pdf-error {
@@ -101,6 +104,11 @@
     }
     
     .pdf-container {
-      padding: 10px;
+      padding: 0.5rem;
+      min-height: 200px;
+    }
+    
+    .pdf-viewer {
+      max-width: 100%;
     }
   }
