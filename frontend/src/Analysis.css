@@ -7,9 +7,10 @@
     padding: 1.5rem;
     border-radius: 12px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    height: min-content;
-    max-height: 800px;
     overflow-y: auto;
+    max-height: 800px;
+    width: 100%;
+    box-sizing: border-box;
   }
   
   .analysis-header {
@@ -19,6 +20,7 @@
     margin-bottom: 1.5rem;
     padding-bottom: 1rem;
     border-bottom: 1px solid #e0e0e0;
+    width: 100%;
   }
   
   .analysis-title {
@@ -36,6 +38,8 @@
     justify-content: space-between;
     align-items: center;
     transition: all 0.3s ease;
+    width: 100%;
+    box-sizing: border-box;
   }
   
   .score-card.score-high {
@@ -80,6 +84,8 @@
     display: flex;
     border-bottom: 1px solid #e0e0e0;
     margin-bottom: 1rem;
+    width: 100%;
+    box-sizing: border-box;
   }
   
   .tab-button {
@@ -90,6 +96,8 @@
     border: none;
     cursor: pointer;
     transition: all 0.2s ease;
+    flex: 1;
+    max-width: 50%;
   }
   
   .tab-button:hover {
@@ -112,6 +120,7 @@
     margin-bottom: 1rem;
     padding-bottom: 0.5rem;
     border-bottom: 1px solid #eaeaea;
+    width: 100%;
   }
   
   .section-title svg {
@@ -130,6 +139,9 @@
   
   .analysis-list {
     margin-bottom: 1.5rem;
+    width: 100%;
+    padding-left: 0;
+    list-style-type: none;
   }
   
   .analysis-item {
@@ -137,6 +149,8 @@
     padding: 0.75rem;
     border-bottom: 1px solid #f0f0f0;
     transition: background-color 0.2s;
+    width: 100%;
+    box-sizing: border-box;
   }
   
   .analysis-item:hover {
@@ -161,6 +175,8 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     border-left: 3px solid;
     transition: transform 0.2s, box-shadow 0.2s;
+    width: 100%;
+    box-sizing: border-box;
   }
   
   .annotation-item:hover {
@@ -258,6 +274,28 @@
     max-width: 250px;
     z-index: 50;
     font-size: 0.9rem;
+  }
+  
+  .annotation-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 5;
+  }
+  
+  /* Summary view styling */
+  .summary-view {
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  /* Detailed analysis styling */
+  .detailed-analysis {
+    width: 100%;
+    box-sizing: border-box;
   }
   
   /* Responsive adjustments */
