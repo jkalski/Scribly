@@ -231,13 +231,13 @@ h3 {
 
 /* Results container - side by side layout */
 .results-container {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: flex;
+  flex-direction: row;
   gap: 2rem;
   width: 90%;
-  max-width: 1200px;
+  max-width: 2200px;
   margin: 0 auto;
-  align-items: start;
+  align-items: flex-start;
   min-height: 600px;
 }
 
@@ -246,12 +246,14 @@ h3 {
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 100%;
-  min-height: 400px;
+  min-width: 0;
+  width: 1000px;
 }
 
 .pdf-section {
   margin-bottom: 2rem;
+  max-width: 800px;
+  min-height: 1920px;
 }
 
 .docx-preview {
@@ -275,8 +277,10 @@ h3 {
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   overflow-y: auto;
-  min-height: 600px;
   max-height: 800px;
+  margin-left: 10rem;
+  margin-top: 2rem;
+  width: 1400px;
 }
 
 .analysis-content {
@@ -346,9 +350,8 @@ h3 {
 /* Responsive design */
 @media (max-width: 1200px) {
   .results-container {
-    grid-template-columns: 1fr;
+    flex-direction: column;
   }
-  
   .pdf-section, 
   .analysis-section {
     width: 100%;

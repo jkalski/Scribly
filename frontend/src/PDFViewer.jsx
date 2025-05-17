@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
 import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
 import 'react-pdf/dist/esm/Page/TextLayer.css';
@@ -12,12 +12,31 @@ const PDFViewer = ({ file }) => {
   const [scale, setScale] = useState(1.2);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const containerRef = useRef(null);
 
   // Options for PDF.js
   const options = useMemo(() => ({
     cMapUrl: 'https://unpkg.com/pdfjs-dist@4.8.69/cmaps/',
     cMapPacked: true,
   }), []);
+
+  // Responsive scaling
+  useEffect(() => {
+    function updateScale() {
+      if (containerRef.current) {
+        // Assume a standard PDF page width of 612px (8.5in at 72dpi)
+        const containerWidth = containerRef.current.offsetWidth;
+        const pdfPageWidth = 612;
+        // Leave some padding (e.g., 16px)
+        let scale = (containerWidth - 16) / pdfPageWidth;
+        scale += 0.6; // Equivalent to pressing zoom+ 3 times
+        setScale(Math.max(0.5, Math.min(scale, 2.5)));
+      }
+    }
+    updateScale();
+    window.addEventListener('resize', updateScale);
+    return () => window.removeEventListener('resize', updateScale);
+  }, []);
 
   const onDocumentLoadSuccess = ({ numPages }) => {
     setNumPages(numPages);
@@ -40,13 +59,13 @@ const PDFViewer = ({ file }) => {
     setPageNumber(prevPage => Math.min(prevPage + 1, numPages || 1));
   };
 
-  // Zoom controls
+  // Zoom controls (override responsive scale)
   const zoomIn = () => {
     setScale(prevScale => Math.min(prevScale + 0.2, 2.5));
   };
 
   const zoomOut = () => {
-    setScale(prevScale => Math.max(prevScale - 0.2, 0.8));
+    setScale(prevScale => Math.max(prevScale - 0.2, 0.5));
   };
 
   return (
@@ -85,7 +104,7 @@ const PDFViewer = ({ file }) => {
         </button>
       </div>
 
-      <div className="pdf-container">
+      <div className="pdf-container" ref={containerRef}>
         {error ? (
           <div className="pdf-error">{error}</div>
         ) : (

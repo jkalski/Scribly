@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState } from 'react';
 import './App.css';
 import './Analysis.css'; // Import our new analysis styles
 import PDFViewer from './PDFViewer';
@@ -13,15 +13,6 @@ function App() {
   const [error, setError] = useState(null);
   const [uploadSuccess, setUploadSuccess] = useState(false);
   const [activeTab, setActiveTab] = useState('summary'); // 'summary', 'annotations', 'detailed'
-  const pdfSectionRef = useRef(null);
-  const analysisSectionRef = useRef(null);
-
-  useEffect(() => {
-    if (pdfSectionRef.current && analysisSectionRef.current) {
-      const pdfHeight = pdfSectionRef.current.offsetHeight;
-      analysisSectionRef.current.style.height = pdfHeight + "px";
-    }
-  }, [file, analysis]);
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
@@ -281,7 +272,7 @@ function App() {
 
       {file && analysis && (
         <div className="results-container">
-          <div className="pdf-section" ref={pdfSectionRef}>
+          <div className="pdf-section">
             <h2>Document Preview</h2>
             {canShowPdf ? (
               <PDFViewer file={file} />
@@ -296,7 +287,7 @@ function App() {
             )}
           </div>
           
-          <div className="analysis-section" ref={analysisSectionRef}>
+          <div className="analysis-section">
             <div className="analysis-header">
               <h2>Analysis Results</h2>
             </div>
