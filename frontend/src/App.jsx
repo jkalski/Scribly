@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import './App.css';
 import './Analysis.css';
 import PDFViewer from './PDFViewer';
+import ReactMarkdown from 'react-markdown';
 import {
   Upload, FileText, AlertCircle, CheckCircle, Loader,
   XCircle
@@ -84,7 +85,7 @@ function App() {
   const parseAnalysisText = (text) => {
     if (!text) return { strengths: [], improvements: [], score: 0 };
 
-    const scoreMatch = text.match(/Overall [aA]ssessment:?[ \t]*(\d+)\/100/);
+    const scoreMatch = text.match(/Overall [aA]ssessment:?[ \t]*(\d+)/);
     const score = scoreMatch ? parseInt(scoreMatch[1]) : 0;
 
     const parseSection = (regex) => {
@@ -131,9 +132,8 @@ function App() {
           <span className="logo-text">Scribly</span>
         </div>
         <nav className="header-nav">
-          <a href="#" className="header-link">Home</a>
-          <a href="#" className="header-link">About</a>
-          <a href="#" className="header-link">Contact</a>
+          <a href="#about" className="header-link">About</a>
+          <a href="#contact" className="header-link">Contact</a>
         </nav>
       </header>
 
@@ -226,7 +226,9 @@ function App() {
                 <div className="detailed-analysis">
                   <h3 className="section-title">Complete Analysis</h3>
                   <div className="analysis-content">
-                    <div className="analysis-text">{analysis}</div>
+                    <div className="analysis-text">
+                      <ReactMarkdown>{analysis}</ReactMarkdown>
+                    </div>
                   </div>
                 </div>
               )}
@@ -234,6 +236,24 @@ function App() {
           </div>
         </div>
       )}
+
+      <section id="about" className="info-section">
+        <h2>About Scribly</h2>
+        <p>
+          Scribly is your AI-powered resume analysis tool. Our mission is to help job seekers improve their resumes
+          with instant, actionable feedback. Whether you're applying to internships or full-time roles, Scribly gives
+          you a competitive edge with data-backed insights.
+        </p>
+      </section>
+
+      <section id="contact" className="info-section">
+        <h2>Contact Us</h2>
+        <p>
+          Have questions, feedback, or want to collaborate? Reach out to us at
+          <a href="mailto:hello@scribly.ai" style={{ color: '#4a86e8', textDecoration: 'none' }}> hello@scribly.ai</a>.
+          We're always happy to connect!
+        </p>
+      </section>
     </div>
   );
 }

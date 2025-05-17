@@ -29,41 +29,60 @@ export const analyzeResume = async (resumeText) => {
     }
 
     console.log('\n=== STARTING ANALYSIS ===');
-    console.log('Using Groq API for analysis');
-    
-    const prompt = `You are an expert resume reviewer. Analyze this resume and provide constructive feedback:
+    console.log('Using Groq API for tech-focused resume analysis');
 
-Resume Content:
+    const prompt = `
+You are a technical resume reviewer with experience hiring for cybersecurity and software engineering roles.
+
+In addition to structured feedback, include personal commentary like a mentor or senior engineer would give. Explain why certain things matter, and give examples where helpful. Be specific and avoid generic phrases. Write in a tone that is helpful, honest, and detailed — like a career advisor who wants the candidate to succeed.
+
+Encourage improvement by highlighting both strengths and weaknesses. If something is done well, explain why it’s effective. If something is weak, explain exactly how to fix it with examples or rephrasing. Don’t be afraid to include long-form commentary.
+
+Analyze the resume below and provide markdown-formatted feedback using this structure:
+
+**Overall Assessment:**  
+Summarize the resume’s strengths and weaknesses in 2–3 sentences. Include a score from 0 to 100.
+
+**Key Strengths:**  
+List the resume’s biggest strengths, grouped by category (e.g., Technical Skills, Projects, Education). Explain why these matter in tech hiring.
+
+**Areas for Improvement:**  
+Point out specific weaknesses or gaps. Include both structural and content-related concerns.
+
+**Specific Suggestions for Enhancement:**  
+Provide 3–5 detailed tips. Where possible, rewrite a weak line or suggest how to present achievements better.
+
+**Section-by-Section Analysis:**  
+Review each section (Objective, Education, Skills, Projects, Experience). Offer honest critique and personalized commentary.
+
+**Tech Hiring Focus:**  
+This resume is intended for roles in software engineering, cybersecurity, or IT. Evaluate it like a recruiter screening candidates. Consider relevance, depth, clarity, and practical skills.
+
+**ATS Optimization:**  
+Check for common keywords used in applicant tracking systems (e.g., Python, Linux, SOC, SIEM, AWS, React, APIs, vulnerability scanning, project-based experience). Suggest important terms that may be missing.
+
+Resume Text:
 ${resumeText}
+`;
 
-Please provide:
-1. Overall assessment (score out of 100)
-2. Key strengths (list 3-5)
-3. Areas for improvement (list 3-5)
-4. Specific suggestions for enhancement
-5. Section-by-section analysis (Experience, Education, Skills, etc.)
-
-Format your response in a clear, structured manner.`;
-
-    // Preparing the request for Groq API
     const requestData = {
-      model: "llama3-70b-8192", // You can also use "mixtral-8x7b-32768" or other available models
+      model: "llama3-70b-8192",
       messages: [
-        { 
-          role: "system", 
-          content: "You are an expert resume reviewer who provides detailed, constructive feedback."
+        {
+          role: "system",
+          content: "You are an expert tech resume reviewer. Return feedback that is practical, detailed, and actionable."
         },
-        { 
-          role: "user", 
-          content: prompt 
+        {
+          role: "user",
+          content: prompt
         }
       ],
-      temperature: 0.7,
+      temperature: 0.5, // Lower temperature for more consistent, structured output
       max_tokens: 4000
     };
 
     console.log('Sending request to Groq...');
-    
+
     const response = await axios.post(GROQ_API_URL, requestData, {
       headers: {
         'Authorization': `Bearer ${apiKey}`,
@@ -72,33 +91,33 @@ Format your response in a clear, structured manner.`;
     });
 
     console.log('Response received successfully');
-    
-    // Extract the content from the Groq response
+
     const responseText = response.data.choices[0].message.content;
     return responseText;
+
   } catch (error) {
     console.error('\n=== GROQ API ERROR ===');
     console.error('Error type:', error.name);
     console.error('Error message:', error.message);
-    
+
     if (error.response) {
       console.error('Response status:', error.response.status);
       console.error('Response data:', error.response.data);
     }
-    
+
     console.error('Error stack:', error.stack);
-    
-    // Check for specific error types
+
     if (error.message.includes('API key')) {
       console.error('\nPOSSIBLE SOLUTIONS:');
       console.error('1. Verify your API key is correct');
       console.error('2. Check if the API key has proper permissions');
       console.error('3. Ensure you\'re using a valid Groq API key');
     }
-    
+
     throw error;
   }
 };
+
 
 // Test function to check connectivity
 export const testGroqConnection = async () => {

@@ -183,3 +183,27 @@ body {
   gap: 0.5rem;
   align-items: start;
 }
+
+.info-section {
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 2rem;
+  margin-top: 3rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+}
+
+.info-section h2 {
+  font-size: 1.75rem;
+  margin-bottom: 1rem;
+  color: #222;
+  text-align: center;
+}
+
+.info-section p {
+  font-size: 1.1rem;
+  color: #444;
+  text-align: center;
+  max-width: 700px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
