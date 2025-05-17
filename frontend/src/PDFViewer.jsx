@@ -1,135 +1,62 @@
-import React, { useState, useMemo, useRef, useEffect } from 'react';
-import { Document, Page, pdfjs } from 'react-pdf';
-import 'react-pdf/dist/esm/Page/AnnotationLayer.css';
-import 'react-pdf/dist/esm/Page/TextLayer.css';
+import React, { useEffect, useState } from 'react';
+import { Viewer, Worker } from '@react-pdf-viewer/core';
+import { defaultLayoutPlugin } from '@react-pdf-viewer/default-layout';
+import { zoomPlugin } from '@react-pdf-viewer/zoom';
+import { thumbnailPlugin } from '@react-pdf-viewer/thumbnail';
 
-// Set worker source for PDF.js - using the local file
-pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
+// Import styles
+import '@react-pdf-viewer/core/lib/styles/index.css';
+import '@react-pdf-viewer/default-layout/lib/styles/index.css';
+import '@react-pdf-viewer/thumbnail/lib/styles/index.css';
+import '@react-pdf-viewer/zoom/lib/styles/index.css';
+import './PDFViewer.css';
 
 const PDFViewer = ({ file }) => {
-  const [numPages, setNumPages] = useState(null);
-  const [pageNumber, setPageNumber] = useState(1);
-  const [scale, setScale] = useState(1.2);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const containerRef = useRef(null);
+  const [fileUrl, setFileUrl] = useState(null);
 
-  // Options for PDF.js
-  const options = useMemo(() => ({
-    cMapUrl: 'https://unpkg.com/pdfjs-dist@4.8.69/cmaps/',
-    cMapPacked: true,
-  }), []);
+  // Plugins
+  const defaultLayoutPluginInstance = defaultLayoutPlugin({
+    sidebarTabs: (defaultTabs) => [defaultTabs[0]],
+  });
 
-  // Responsive scaling
+  const plugins = [
+    defaultLayoutPluginInstance,
+    zoomPlugin(),
+    thumbnailPlugin(),
+  ];
+
+  // Manage blob URL lifecycle
   useEffect(() => {
-    function updateScale() {
-      if (containerRef.current) {
-        // Assume a standard PDF page width of 612px (8.5in at 72dpi)
-        const containerWidth = containerRef.current.offsetWidth;
-        const pdfPageWidth = 612;
-        // Leave some padding (e.g., 16px)
-        let scale = (containerWidth - 16) / pdfPageWidth;
-        scale += 0.6; // Equivalent to pressing zoom+ 3 times
-        setScale(Math.max(0.5, Math.min(scale, 2.5)));
-      }
-    }
-    updateScale();
-    window.addEventListener('resize', updateScale);
-    return () => window.removeEventListener('resize', updateScale);
-  }, []);
+    if (!file) return;
 
-  const onDocumentLoadSuccess = ({ numPages }) => {
-    setNumPages(numPages);
-    setLoading(false);
-    setError(null);
-  };
+    const url = URL.createObjectURL(file);
+    setFileUrl(url);
+    console.log('Blob URL created:', url);
 
-  const onDocumentLoadError = (err) => {
-    console.error('Error loading PDF:', err);
-    setError('Failed to load PDF. Please check if the file is valid.');
-    setLoading(false);
-  };
-
-  // Page navigation
-  const previousPage = () => {
-    setPageNumber(prevPage => Math.max(prevPage - 1, 1));
-  };
-
-  const nextPage = () => {
-    setPageNumber(prevPage => Math.min(prevPage + 1, numPages || 1));
-  };
-
-  // Zoom controls (override responsive scale)
-  const zoomIn = () => {
-    setScale(prevScale => Math.min(prevScale + 0.2, 2.5));
-  };
-
-  const zoomOut = () => {
-    setScale(prevScale => Math.max(prevScale - 0.2, 0.5));
-  };
+    return () => {
+      URL.revokeObjectURL(url);
+      console.log('Blob URL revoked:', url);
+    };
+  }, [file]);
 
   return (
-    <div className="pdf-viewer">
-      <div className="pdf-controls">
-        <button 
-          onClick={previousPage} 
-          disabled={pageNumber <= 1 || loading}
-          className="pdf-control-btn"
-        >
-          Previous
-        </button>
-        <span className="page-info">
-          {loading ? 'Loading...' : `Page ${pageNumber} of ${numPages}`}
-        </span>
-        <button 
-          onClick={nextPage} 
-          disabled={pageNumber >= numPages || loading}
-          className="pdf-control-btn"
-        >
-          Next
-        </button>
-        <button 
-          onClick={zoomOut} 
-          disabled={loading}
-          className="pdf-control-btn"
-        >
-          Zoom -
-        </button>
-        <button 
-          onClick={zoomIn} 
-          disabled={loading}
-          className="pdf-control-btn"
-        >
-          Zoom +
-        </button>
-      </div>
-
-      <div className="pdf-container" ref={containerRef}>
-        {error ? (
-          <div className="pdf-error">{error}</div>
-        ) : (
-          <div style={{ position: 'relative' }}>
-            <Document
-              file={file}
-              onLoadSuccess={onDocumentLoadSuccess}
-              onLoadError={onDocumentLoadError}
-              loading={<div>Loading PDF...</div>}
-              options={options}
-            >
-              {!loading && (
-                <div style={{ position: 'relative' }}>
-                  <Page
-                    pageNumber={pageNumber}
-                    scale={scale}
-                    renderTextLayer={true}
-                    renderAnnotationLayer={true}
-                  />
-                </div>
-              )}
-            </Document>
-          </div>
-        )}
-      </div>
+    <div className="pdf-viewer-container">
+      {fileUrl ? (
+        <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
+          <Viewer
+            fileUrl={fileUrl}
+            plugins={plugins}
+            defaultScale={1.0}
+            theme={{ theme: 'light' }}
+            onDocumentLoad={() => console.log('PDF document loaded')}
+            onDocumentLoadError={(error) => console.error('PDF load error:', error)}
+          />
+        </Worker>
+      ) : (
+        <div className="no-pdf-message">
+          <p>No PDF document selected</p>
+        </div>
+      )}
     </div>
   );
 };
