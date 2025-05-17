@@ -254,7 +254,7 @@ function App() {
         >
           {loading ? (
             <>
-              <Loader size={18} className="animate-spin" />
+              <Loader size={18} />
               <span>Analyzing...</span>
             </>
           ) : (
@@ -280,8 +280,8 @@ function App() {
               <div className="docx-preview">
                 <h3>DOCX Preview</h3>
                 <p>DOCX preview is not available. View the extracted text below.</p>
-                <div className="extracted-text-preview p-4 bg-gray-100 mt-4 rounded text-left">
-                  <pre className="text-sm whitespace-pre-wrap">{extractedText}</pre>
+                <div className="extracted-text-preview">
+                  <pre>{extractedText}</pre>
                 </div>
               </div>
             )}
@@ -317,9 +317,9 @@ function App() {
               {activeTab === 'summary' && (
                 <div className="summary-view">
                   {/* Strengths Section */}
-                  <div className="mb-6">
+                  <div className="strengths-section">
                     <h3 className="section-title">
-                      <CheckCircle size={18} className="text-green-500" />
+                      <CheckCircle size={18} />
                       Key Strengths
                     </h3>
                     <ul className="analysis-list">
@@ -328,8 +328,8 @@ function App() {
                           {item.category && (
                             <span className="category-title">{item.category}</span>
                           )}
-                          <div className="flex">
-                            <span className="analysis-item-icon text-green-500">•</span>
+                          <div className="item-content">
+                            <span className="item-bullet">•</span>
                             <span>{item.content}</span>
                           </div>
                         </li>
@@ -338,9 +338,9 @@ function App() {
                   </div>
                   
                   {/* Improvements Section */}
-                  <div className="mb-6">
+                  <div className="improvements-section">
                     <h3 className="section-title">
-                      <XCircle size={18} className="text-red-500" />
+                      <XCircle size={18} />
                       Areas for Improvement
                     </h3>
                     <ul className="analysis-list">
@@ -349,8 +349,8 @@ function App() {
                           {item.category && (
                             <span className="category-title">{item.category}</span>
                           )}
-                          <div className="flex">
-                            <span className="analysis-item-icon text-red-500">•</span>
+                          <div className="item-content">
+                            <span className="item-bullet">•</span>
                             <span>{item.content}</span>
                           </div>
                         </li>
@@ -362,9 +362,9 @@ function App() {
               
               {activeTab === 'detailed' && (
                 <div className="detailed-analysis">
-                  <h3 className="section-title mb-3">Complete Analysis</h3>
-                  <div className="bg-white p-4 rounded-lg shadow-sm mb-4 text-left">
-                    <div className="whitespace-pre-line">{analysis}</div>
+                  <h3 className="section-title">Complete Analysis</h3>
+                  <div className="analysis-content">
+                    <div className="analysis-text">{analysis}</div>
                   </div>
                 </div>
               )}
