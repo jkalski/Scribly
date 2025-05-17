@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
 import './Analysis.css'; // Import our new analysis styles
 import PDFViewer from './PDFViewer';
@@ -6,6 +6,30 @@ import { Upload, FileText, AlertCircle, CheckCircle, Loader,
          XCircle, AlertTriangle, Info } from 'lucide-react';
 
 function App() {
+  // Add this useEffect to directly modify the root element
+  useEffect(() => {
+    const rootElement = document.getElementById('root');
+    if (rootElement) {
+      rootElement.style.width = '100%';
+      rootElement.style.maxWidth = '100%';
+      rootElement.style.margin = '0';
+      rootElement.style.padding = '0';
+      rootElement.style.display = 'block';
+      
+      // Also modify body and html for good measure
+      document.body.style.width = '100%';
+      document.body.style.margin = '0';
+      document.body.style.padding = '0';
+      document.documentElement.style.width = '100%';
+    }
+    
+    // Add a temporary outline to see element boundaries during development
+    // You can remove this in production
+    // document.querySelectorAll('.App, .main-header, .upload-section, .results-container').forEach(el => {
+    //   el.style.outline = '1px solid red';
+    // });
+  }, []);
+
   const [file, setFile] = useState(null);
   const [analysis, setAnalysis] = useState(null);
   const [extractedText, setExtractedText] = useState(null);
@@ -208,7 +232,7 @@ function App() {
   const canShowPdf = file && file.type === 'application/pdf';
 
   return (
-    <div className="App">
+    <div className="App" style={{ width: '100%', maxWidth: '100%' }}>
       {/* Modern Full-Width Header */}
       <div className="main-header">
         <img src="/ScriblyLogo.png" alt="Scribly Logo" className="header-logo" />
