@@ -144,178 +144,198 @@ function App() {
         </div>
       </section>
 
-      <div className="App">
-        <div className="upload-section">
-          <div className="upload-container">
-            <label htmlFor="file-upload" className="file-upload-label">
-              <Upload size={24} />
-              <span>Choose a file</span>
-              <input
-                id="file-upload"
-                type="file"
-                accept=".pdf,.docx"
-                onChange={handleFileChange}
-                className="file-input"
-              />
-            </label>
-            {file && (
-              <p className="selected-file">
-                <FileText size={16} /> {file.name}
-              </p>
-            )}
-            {uploadSuccess && (
-              <div className="success-message">
-                <CheckCircle size={16} /> File uploaded successfully
-              </div>
-            )}
-          </div>
-          <button
-            onClick={handleUpload}
-            disabled={!file || loading}
-            className="analyze-button"
-          >
-            {loading ? (
-              <>
-                <Loader size={18} />
-                <span>Analyzing...</span>
-              </>
-            ) : (
-              "Analyze Resume"
-            )}
-          </button>
-        </div>
+      {/* Wave SVG divider that overlaps with the hero section */}
+      <svg
+        viewBox="0 0 1440 107"
+        preserveAspectRatio="none"
+        style={{
+          width: "100%",
+          display: "block",
+          marginTop: "-2rem", // Makes the wave overlap with the hero section
+        }}
+      >
+        <path
+          fill="#f9f9f9" // Matches the background color from App.css
+          d="M720 38.936531C571.07999 57.866238 321 119.5040168 0 41.09718v66.4480438h1440V40.491756c-320.2408-78.406837-571.07999-20.484932-720-1.555225z"
+        ></path>
+      </svg>
 
-        {error && (
-          <div className="error">
-            <AlertCircle size={18} />
-            {error}
-          </div>
-        )}
-
-        {file && analysis && (
-          <div className="results-container">
-            <div className="pdf-section">
-              <h2>Document Preview</h2>
-              {canShowPdf ? (
-                <PDFViewer file={file} />
-              ) : (
-                <div className="docx-preview">
-                  <h3>DOCX Preview</h3>
-                  <p>DOCX preview is not available. View the extracted text below.</p>
-                  <div className="extracted-text-preview">
-                    <pre>{extractedText}</pre>
-                  </div>
+      {/* Main App content wrapped in a section with matching background color */}
+      <section style={{ backgroundColor: "#f9f9f9", paddingTop: "3rem" }}>
+        <div className="App">
+          <div className="upload-section">
+            <div className="upload-container">
+              <label htmlFor="file-upload" className="file-upload-label">
+                <Upload size={24} />
+                <span>Choose a file</span>
+                <input
+                  id="file-upload"
+                  type="file"
+                  accept=".pdf,.docx"
+                  onChange={handleFileChange}
+                  className="file-input"
+                />
+              </label>
+              {file && (
+                <p className="selected-file">
+                  <FileText size={16} /> {file.name}
+                </p>
+              )}
+              {uploadSuccess && (
+                <div className="success-message">
+                  <CheckCircle size={16} /> File uploaded successfully
                 </div>
               )}
             </div>
+            <button
+              onClick={handleUpload}
+              disabled={!file || loading}
+              className="analyze-button"
+            >
+              {loading ? (
+                <>
+                  <Loader size={18} />
+                  <span>Analyzing...</span>
+                </>
+              ) : (
+                "Analyze Resume"
+              )}
+            </button>
+          </div>
 
-            <div className="analysis-section">
-              <div className="analysis-header">
-                <h2>Analysis Results</h2>
-              </div>
-              <div
-                className={`score-card ${analysisData.score >= 80
-                  ? "score-high"
-                  : analysisData.score >= 60
-                    ? "score-medium"
-                    : "score-low"
-                  }`}
-              >
-                <div className="score-label">Resume Score</div>
-                <div className="score-value">{analysisData.score}/100</div>
-              </div>
-              <div className="tab-container">
-                <button
-                  className={`tab-button ${activeTab === "summary" ? "active" : ""}`}
-                  onClick={() => setActiveTab("summary")}
-                >
-                  Summary
-                </button>
-                <button
-                  className={`tab-button ${activeTab === "detailed" ? "active" : ""}`}
-                  onClick={() => setActiveTab("detailed")}
-                >
-                  Detailed Analysis
-                </button>
-              </div>
-              <div className="tab-content">
-                {activeTab === "summary" && (
-                  <div className="summary-view">
-                    <div className="strengths-section">
-                      <h3 className="section-title">
-                        <CheckCircle size={18} /> Key Strengths
-                      </h3>
-                      <ul className="analysis-list">
-                        {analysisData.strengths.map((item, index) => (
-                          <li key={index} className="analysis-item">
-                            <div className="item-content">
-                              <span className="item-bullet">•</span>
-                              <span>{item.content}</span>
-                            </div>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                    <div className="improvements-section">
-                      <h3 className="section-title">
-                        <XCircle size={18} /> Areas for Improvement
-                      </h3>
-                      <ul className="analysis-list">
-                        {analysisData.improvements.map((item, index) => (
-                          <li key={index} className="analysis-item">
-                            <div className="item-content">
-                              <span className="item-bullet">•</span>
-                              <span>{item.content}</span>
-                            </div>
-                          </li>
-                        ))}
-                      </ul>
+          {error && (
+            <div className="error">
+              <AlertCircle size={18} />
+              {error}
+            </div>
+          )}
+
+          {file && analysis && (
+            <div className="results-container">
+              <div className="pdf-section">
+                <h2>Document Preview</h2>
+                {canShowPdf ? (
+                  <PDFViewer file={file} />
+                ) : (
+                  <div className="docx-preview">
+                    <h3>DOCX Preview</h3>
+                    <p>DOCX preview is not available. View the extracted text below.</p>
+                    <div className="extracted-text-preview">
+                      <pre>{extractedText}</pre>
                     </div>
                   </div>
                 )}
-                {activeTab === "detailed" && (
-                  <div className="detailed-analysis">
-                    <h3 className="section-title">Complete Analysis</h3>
-                    <div className="analysis-text">
-                      <ReactMarkdown>{analysis}</ReactMarkdown>
+              </div>
+
+              <div className="analysis-section">
+                <div className="analysis-header">
+                  <h2>Analysis Results</h2>
+                </div>
+                <div
+                  className={`score-card ${analysisData.score >= 80
+                    ? "score-high"
+                    : analysisData.score >= 60
+                      ? "score-medium"
+                      : "score-low"
+                    }`}
+                >
+                  <div className="score-label">Resume Score</div>
+                  <div className="score-value">{analysisData.score}/100</div>
+                </div>
+                <div className="tab-container">
+                  <button
+                    className={`tab-button ${activeTab === "summary" ? "active" : ""}`}
+                    onClick={() => setActiveTab("summary")}
+                  >
+                    Summary
+                  </button>
+                  <button
+                    className={`tab-button ${activeTab === "detailed" ? "active" : ""}`}
+                    onClick={() => setActiveTab("detailed")}
+                  >
+                    Detailed Analysis
+                  </button>
+                </div>
+                <div className="tab-content">
+                  {activeTab === "summary" && (
+                    <div className="summary-view">
+                      <div className="strengths-section">
+                        <h3 className="section-title">
+                          <CheckCircle size={18} /> Key Strengths
+                        </h3>
+                        <ul className="analysis-list">
+                          {analysisData.strengths.map((item, index) => (
+                            <li key={index} className="analysis-item">
+                              <div className="item-content">
+                                <span className="item-bullet">•</span>
+                                <span>{item.content}</span>
+                              </div>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                      <div className="improvements-section">
+                        <h3 className="section-title">
+                          <XCircle size={18} /> Areas for Improvement
+                        </h3>
+                        <ul className="analysis-list">
+                          {analysisData.improvements.map((item, index) => (
+                            <li key={index} className="analysis-item">
+                              <div className="item-content">
+                                <span className="item-bullet">•</span>
+                                <span>{item.content}</span>
+                              </div>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
+                  {activeTab === "detailed" && (
+                    <div className="detailed-analysis">
+                      <h3 className="section-title">Complete Analysis</h3>
+                      <div className="analysis-text">
+                        <ReactMarkdown>{analysis}</ReactMarkdown>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
-        )}
-      </div>
+          )}
+        </div>
+      </section>
 
       <footer style={{ backgroundColor: '#032153', color: 'white', padding: '4rem 2rem 2rem' }}>
-        <div style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          justifyContent: 'space-between',
-          maxWidth: '1200px',
-          margin: '0 auto',
-          gap: '2rem'
-        }}>
-          <div style={{ flex: '1 1 300px' }} id="about">
-            <h3 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>About Scribly</h3>
-            <p style={{ lineHeight: '1.6' }}>
-              Scribly is an AI-powered resume feedback tool designed for job seekers in tech.
-              We help you improve structure, language, and content — instantly and effectively.
-            </p>
-          </div>
-          <div style={{ flex: '1 1 300px' }} id="contact">
-            <h3 style={{ fontSize: '1.5rem', marginBottom: '1rem' }}>Contact Us</h3>
-            <p style={{ lineHeight: '1.6' }}>
-              Have questions, feedback, or want to collaborate?
-              <br />
-              Reach out at: <a href="mailto:support@scribly.ai" style={{ color: '#aaccff' }}>support@scribly.ai</a>
-            </p>
-          </div>
-        </div>
-        <div style={{ textAlign: 'center', marginTop: '3rem', fontSize: '0.9rem', color: '#ccc' }}>
-          &copy; {new Date().getFullYear()} Scribly. All rights reserved.
-        </div>
-      </footer>
+  <div style={{
+    display: 'flex',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    maxWidth: '1200px',
+    margin: '0 auto',
+    gap: '2rem'
+  }}>
+    <div style={{ flex: '1 1 300px' }} id="about">
+      <h3 style={{ fontSize: '1.5rem', marginBottom: '1rem', color: 'white' }}>About Scribly</h3>
+      <p style={{ lineHeight: '1.6', color: 'white' }}>
+        Scribly is a student-built AI resume tool created to help aspiring tech professionals level up their applications. 
+        It provides fast, actionable feedback on structure, clarity, and keyword usage — so your strengths shine through every line.
+      </p>
+    </div>
+    <div style={{ flex: '1 1 300px' }} id="contact">
+      <h3 style={{ fontSize: '1.5rem', marginBottom: '1rem', color: 'white' }}>Contact Us</h3>
+      <p style={{ lineHeight: '1.6', color: 'white' }}>
+        Have questions, feedback, or want to collaborate?
+        <br />
+        Reach out at: <a href="mailto:support@scribly.ai" style={{ color: '#aaccff' }}>support@scribly.ai</a>
+      </p>
+    </div>
+  </div>
+  <div style={{ textAlign: 'center', marginTop: '3rem', fontSize: '0.9rem', color: '#ccc' }}>
+    &copy; {new Date().getFullYear()} Scribly. All rights reserved.
+  </div>
+</footer>
+
     </>
   );
 }
