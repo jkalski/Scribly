@@ -50,7 +50,7 @@ function App() {
     try {
       const formData = new FormData();
       formData.append("file", file);
-      const response = await fetch("http://localhost:5000/api/analyze-resume", {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/analyze-resume`, {
         method: "POST",
         body: formData,
       });
